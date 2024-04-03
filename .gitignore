@@ -23,6 +23,6 @@ pnpm-debug.log*
 *.sw?
 
 # 忽略数据库目录
-db/
+code_project/db/
 # 忽略数据库锁文件
 *.lock
