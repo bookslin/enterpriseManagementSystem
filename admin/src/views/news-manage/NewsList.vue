@@ -3,7 +3,7 @@
         <el-card>
             <el-page-header content="新闻列表" icon="" title="新闻管理" />
 
-            <el-table :data="tableData" style="width: 100%">
+            <el-table :data="getSlicedData" style="width: 100%">
                 <el-table-column prop="title" label="标题" />
 
                 <el-table-column label="分类" sortable prop="category">
@@ -18,7 +18,7 @@
                     </template>
                 </el-table-column>
 
-                <el-table-column label="是否发布">
+                <el-table-column label="是否发布" sortable prop="isPublish">
                     <template #default="scope">
                         <el-switch v-model="scope.row.isPublish" :active-value="1" :inactive-value="0"
                             @change="handleSwitchChange(scope.row)" />
@@ -39,6 +39,10 @@
                     </template>
                 </el-table-column>
             </el-table>
+
+            <el-pagination background hide-on-single-page :page-size="pageSize" layout="prev, pager, next, jumper"
+                :total="total" @size-change="handleSizeChange" @current-change="handleCurrentChange" />
+
         </el-card>
         <el-dialog v-model="dialogVisible" title="预览新闻" width="50%">
             <div>
@@ -55,7 +59,7 @@
     </div>
 </template>
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import axios from 'axios';
 import formatTime from "@/util/formatTime"
 import { Star, Edit, Delete, StarFilled } from "@element-plus/icons-vue"
@@ -65,6 +69,27 @@ const tableData = ref([])
 const previewData = ref({})
 const dialogVisible = ref(false)
 
+const pageSize = ref(10)
+const currentPage = ref(1)
+const total = ref(0)
+
+const getTotalPages = computed(() => Math.ceil(tableData.value.length / pageSize.value))
+
+const handleSizeChange = (val) => {
+    pageSize.value = val
+    currentPage.value = 1 // Reset current page when changing page size
+}
+
+const handleCurrentChange = (val) => {
+    currentPage.value = val
+}
+
+const getSlicedData = computed(() => {
+    const start = (currentPage.value - 1) * pageSize.value
+    const end = start + pageSize.value
+    return tableData.value.slice(start, end)
+})
+
 onMounted(() => {
     getTableData()
 })
@@ -73,6 +98,7 @@ const getTableData = async () => {
     const res = await axios.get(`/adminapi/news/list`)
     // console.log(res.data);
     tableData.value = res.data.data
+    total.value = res.data.data.length
     // console.log(tableData.value);
 }
 
@@ -121,5 +147,10 @@ const handleEdit = (item) => {
     img {
         max-width: 100%;
     }
+}
+
+.el-pagination {
+    justify-content: center;
+    padding: 10px;
 }
 </style>

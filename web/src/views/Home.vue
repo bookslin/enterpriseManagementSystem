@@ -1,6 +1,6 @@
 <template>
     <div class="container">
-        <el-carousel height="calc(100vh - 60px)">
+        <el-carousel height="calc(100vh - 60px)" :interval="3000">
             <el-carousel-item :key="1">
                 <div style="position: relative;" :style="{ backgroundImage: `url(${require('@/assets/index1.png')})` }">
                     <div class="cneter">铸造 · 未来</div>
