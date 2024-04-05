@@ -71,7 +71,7 @@ const selectProduct = (product) => {
             display: flex;
             // width: 90%;
             width: 1300px;
-            height: 450px;
+            height: 550px;
 
             .product-left {
                 width: 35%;

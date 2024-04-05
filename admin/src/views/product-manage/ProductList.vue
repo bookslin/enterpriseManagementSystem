@@ -2,18 +2,14 @@
     <div>
         <el-card>
             <el-page-header content="产品列表" icon="" title="产品管理" />
-
             <el-table :data="tableData" style="width: 100%">
                 <el-table-column prop="title" label="产品名称" />
                 <el-table-column prop="introduction" label="简要描述" />
-
-
-                <el-table-column label="更新时间">
+                <el-table-column label="更新时间" sortable prop="editTime">
                     <template #default="scope">
                         {{ formatTime.getTime(scope.row.editTime) }}
                     </template>
                 </el-table-column>
-
                 <el-table-column label="操作">
                     <template #default="scope">
                         <el-button circle :icon="Edit" @click="handleEdit(scope.row)"></el-button>
@@ -56,7 +52,7 @@ const handleDelete = async (item) => {
 }
 
 //编辑回调
-const handleEdit =  (item)=>{
+const handleEdit = (item) => {
     router.push(`/product-manage/editproduct/${item._id}`)
 }
 

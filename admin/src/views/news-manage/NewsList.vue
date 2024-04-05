@@ -6,13 +6,13 @@
             <el-table :data="tableData" style="width: 100%">
                 <el-table-column prop="title" label="标题" />
 
-                <el-table-column label="分类">
+                <el-table-column label="分类" sortable prop="category">
                     <template #default="scope">
                         {{ categoryFormat(scope.row.category) }}
                     </template>
                 </el-table-column>
 
-                <el-table-column label="更新时间">
+                <el-table-column label="更新时间" sortable prop="editTime">
                     <template #default="scope">
                         {{ formatTime.getTime(scope.row.editTime) }}
                     </template>
@@ -51,9 +51,7 @@
 
                 <div v-html="previewData.content" class="htmlcontent"></div>
             </div>
-
         </el-dialog>
-
     </div>
 </template>
 <script setup>
@@ -75,6 +73,7 @@ const getTableData = async () => {
     const res = await axios.get(`/adminapi/news/list`)
     // console.log(res.data);
     tableData.value = res.data.data
+    // console.log(tableData.value);
 }
 
 //格式化分类信息

@@ -35,30 +35,65 @@ app.use(webProductRouter)
 
 // adminapi后台系统
 // webapi企业官网
-app.use((req,res,next)=>{
-  //如果token有效，next()
-  //如果token过期了，返回401错误
-  if(req.url==="/adminapi/user/login"){
-    next()
+
+app.use((req, res, next) => {
+  // 如果请求的 URL 是登录接口，则直接放行
+  if (req.url === "/adminapi/user/login") {
+    next();
     return;
   }
-  const token = req.headers["authorization"].split(" ")[1]
-  if(token) {
-    var payload = JWT.verify(token)
-    // console.log(payload);
-    if(payload) {
-      // const newToken = JWT.generate(payload,"10s")
-      const newToken = JWT.generate({
-        _id:payload._id,
-        username:payload.username
-      },"1d")
-      res.header("Authorization",newToken)
-      next()
-    }else{
-      res.status(401).send({errCode:"-1",errorInfo:"token过期"})
-    }
+
+  // 检查请求头中是否存在 "authorization" 属性
+  if (!req.headers["authorization"]) {
+    // 如果不存在，返回 401 错误
+    return res.status(401).send({ errCode: "-1", errorInfo: "缺少授权信息" });
   }
-})
+
+  // 尝试获取 token
+  const token = req.headers["authorization"].split(" ")[1];
+
+  // 验证 token
+  const payload = JWT.verify(token);
+  if (payload) {
+    // 生成新的 token
+    const newToken = JWT.generate({
+      _id: payload._id,
+      username: payload.username
+    }, "1d");
+
+    // 将新的 token 添加到响应头中
+    res.header("Authorization", newToken);
+    next();
+  } else {
+    // 如果 token 过期，返回 401 错误
+    return res.status(401).send({ errCode: "-1", errorInfo: "token过期" });
+  }
+});
+
+// app.use((req,res,next)=>{
+//   //如果token有效，next()
+//   //如果token过期了，返回401错误
+//   if(req.url==="/adminapi/user/login"){
+//     next()
+//     return;
+//   }
+//   const token = req.headers["authorization"].split(" ")[1]
+//   if(token) {
+//     var payload = JWT.verify(token)
+//     // console.log(payload);
+//     if(payload) {
+//       // const newToken = JWT.generate(payload,"10s")
+//       const newToken = JWT.generate({
+//         _id:payload._id,
+//         username:payload.username
+//       },"1d")
+//       res.header("Authorization",newToken)
+//       next()
+//     }else{
+//       res.status(401).send({errCode:"-1",errorInfo:"token过期"})
+//     }
+//   }
+// })
 
 app.use(UserRouter)
 app.use(NewsRouter)

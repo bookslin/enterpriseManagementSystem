@@ -2,7 +2,7 @@
     <div>
         <el-card>
             <el-page-header content="用户列表" icon="" title="用户管理" />
-            <el-table :data="tableData" style="width: 100%">
+            <el-table :data="pagedTableData" style="width: 100%">
                 <el-table-column prop="username" label="用户名" width="180" />
                 <el-table-column label="头像" width="180">
                     <template #default="scope">
@@ -24,7 +24,10 @@
                     </template>
                 </el-table-column>
 
-                <el-table-column label="操作">
+                <el-table-column>
+                    <template #header>
+                        <el-input style="width: 200px" v-model="search" width="100px" size="small" placeholder="请输入用户名"/>
+                    </template>
                     <template #default="scope">
                         <el-button size="small" @click="handleEdit(scope.row)">编辑</el-button>
                         <el-popconfirm title="你确定要删除吗？" confirm-button-text="确定" cancel-button-text="取消"
@@ -36,6 +39,11 @@
                     </template>
                 </el-table-column>
             </el-table>
+            <div class="demo-pagination-block">
+                <el-pagination background hide-on-single-page :page-size="pageSize"
+                    layout="prev, pager, next, jumper" :total="totalDataCount" @size-change="handleSizeChange"
+                    @current-change="handleCurrentChange" />
+            </div>
         </el-card>
 
         <el-dialog v-model="dialogVisible" title="编辑用户" width="500">
@@ -67,10 +75,36 @@
     </div>
 </template> 
 <script setup>
-import { ref, reactive, onMounted } from 'vue';
+import { computed, ref, reactive, onMounted } from 'vue';
 import axios from 'axios';
 
 const tableData = ref([])
+const search = ref('')
+
+const pageSize = ref(8)
+const currentPage = ref(1)
+const pagedTableData = computed(() => {
+    const startIndex = (currentPage.value - 1) * pageSize.value
+    const endIndex = startIndex + pageSize.value
+    return filterTableData.value.slice(startIndex, endIndex)
+})
+
+const handleSizeChange = (val) => {
+    pageSize.value = val
+}
+
+const handleCurrentChange = (val) => {
+    currentPage.value = val
+}
+const filterTableData = computed(() =>
+    tableData.value.filter(
+        (data) =>
+            !search.value ||
+            data.username.toLowerCase().includes(search.value.toLowerCase())
+    )
+)
+const totalDataCount = computed(() => tableData.value.length)
+
 const userFormRef = ref()
 let userForm = reactive({
     username: '',
@@ -133,9 +167,17 @@ const handleDelete = async data => {
     await axios.delete(`/adminapi/user/list/${data._id}`)
     getTableData()
 }
+
+
+
 </script> 
 <style lang="scss" scoped>
 .el-table {
     margin-top: 50px;
+}
+
+.el-pagination {
+    justify-content: center;
+    padding: 10px;
 }
 </style>
